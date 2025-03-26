@@ -20,7 +20,7 @@ class PasswordResetRequestSchema(BaseModel):
     email: EmailStr
 
 
-class PasswordResetCompleteSchema(BaseModel):
+class PasswordResetCompleteRequestSchema(BaseModel):
     email: EmailStr
     token: str
     password: str = Field(..., min_length=8, max_length=128)
@@ -37,9 +37,9 @@ class UserLoginResponseSchema(BaseModel):
     token_type: str = "bearer"
 
 
-class RefreshTokenRequestSchema(BaseModel):
+class TokenRefreshRequestSchema(BaseModel):
     refresh_token: str
 
 
-class RefreshTokenResponseSchema(BaseModel):
+class TokenRefreshResponseSchema(BaseModel):
     access_token: str

@@ -25,10 +25,10 @@ from schemas.accounts import (
     UserRegistrationResponseSchema,
     UserActivationRequestSchema,
     PasswordResetRequestSchema,
-    PasswordResetCompleteSchema,
+    PasswordResetCompleteRequestSchema,
     UserLoginResponseSchema,
-    RefreshTokenRequestSchema,
-    RefreshTokenResponseSchema,
+    TokenRefreshRequestSchema,
+    TokenRefreshResponseSchema,
 )
 
 router = APIRouter()
@@ -151,7 +151,7 @@ async def password_reset_request(
 
 @router.post("/reset-password/complete/", status_code=status.HTTP_200_OK)
 async def reset_password_complete(
-        data: PasswordResetCompleteSchema,
+        data: PasswordResetCompleteRequestSchema,
         db: AsyncSession = Depends(get_db),
 ):
     try:
@@ -243,9 +243,9 @@ async def login(
         )
 
 
-@router.post("/refresh/", status_code=status.HTTP_200_OK, response_model=RefreshTokenResponseSchema)
+@router.post("/refresh/", status_code=status.HTTP_200_OK, response_model=TokenRefreshResponseSchema)
 async def refresh_access_token(
-        data: RefreshTokenRequestSchema,
+        data: TokenRefreshRequestSchema,
         db: AsyncSession = Depends(get_db),
         jwt_manager: JWTAuthManagerInterface = Depends(get_jwt_auth_manager),
 ):
