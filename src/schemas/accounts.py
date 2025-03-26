@@ -1,40 +1,61 @@
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, field_validator
+
+from database.validators.accounts import validate_password_strength, validate_email
 
 
 class UserRegistrationRequestSchema(BaseModel):
-    email: EmailStr
-    password: str = Field(..., min_length=8, max_length=128)
+    email: str
+    password: str
+
+    @field_validator("password")
+    def validate_password(cls, value):
+        return validate_password_strength(value)
+
+    @field_validator("email")
+    def validate_email(cls, value):
+        return validate_email(value)
 
 
 class UserRegistrationResponseSchema(BaseModel):
     id: int
-    email: EmailStr
+    email: str
 
 
 class UserActivationRequestSchema(BaseModel):
-    email: EmailStr
+    email: str
     token: str
+
+    @field_validator("email")
+    def validate_email(cls, value):
+        return validate_email(value)
 
 
 class PasswordResetRequestSchema(BaseModel):
-    email: EmailStr
+    email: str
+
+    @field_validator("email")
+    def validate_email(cls, value):
+        return validate_email(value)
 
 
 class PasswordResetCompleteRequestSchema(BaseModel):
-    email: EmailStr
+    email: str
     token: str
-    password: str = Field(..., min_length=8, max_length=128)
-
-
-class UserLoginRequestSchema(BaseModel):
-    email: EmailStr
     password: str
+
+    @field_validator("password")
+    def validate_password(cls, value):
+        return validate_password_strength(value)
+
+    @field_validator("email")
+    def validate_email(cls, value):
+        return validate_email(value)
 
 
 class UserLoginResponseSchema(BaseModel):
     access_token: str
     refresh_token: str
-    token_type: str = "bearer"
+    token_type: str
 
 
 class TokenRefreshRequestSchema(BaseModel):

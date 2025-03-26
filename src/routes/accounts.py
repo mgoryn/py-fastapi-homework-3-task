@@ -1,4 +1,5 @@
 from datetime import datetime, timezone
+from typing import cast
 
 from fastapi import APIRouter, Depends, status, HTTPException
 from sqlalchemy import select
@@ -62,9 +63,9 @@ async def register(
 
         user = UserModel(
             email=data.email,
-            _hashed_password=hash_password(data.password),
             group=group,
         )
+        user.password = data.password
         activation_token = ActivationTokenModel(user=user)
 
         db.add(activation_token)
@@ -94,11 +95,7 @@ async def activate(
             detail="User account is already active.",
         )
 
-    activation_token_query = select(ActivationTokenModel).where(ActivationTokenModel.user == user)
-    activation_token_result = await db.execute(activation_token_query)
-    activation_token = activation_token_result.scalar_one_or_none()
-
-    if not activation_token or activation_token.expires_at < datetime.now():
+    if not user.activation_token or user.activation_token.expires_at < datetime.now():
         raise HTTPException(
             status_code=400,
             detail="Invalid or expired activation token."
@@ -113,7 +110,7 @@ async def activate(
     db.add(user)
     await db.flush()
 
-    await db.delete(activation_token)
+    await db.delete(user.activation_token)
     await db.commit()
     return {
         "message": "User account activated successfully.",
@@ -180,7 +177,7 @@ async def reset_password_complete(
                 detail="Invalid email or token."
             )
 
-        user._hashed_password = hash_password(data.password)
+        user.password = data.password
         db.add(user)
         await db.flush()
 
